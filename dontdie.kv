@@ -53,9 +53,30 @@ RelativeLayout:
             text: 'Menu'
             size_hint: None, None
             size: 75, 35
-
     AnchorLayout:
         anchor_x: 'left'
         anchor_y: 'bottom'
+        padding: 10
         BoxLayout:
-
+            spacing: 2.5
+            size_hint: None, None
+            size: 400, 50
+            Button:
+                size_hint_x: None
+                width: 75
+            Button:
+                size_hint_x: None
+                width: 75
+            BoxLayout:
+                canvas.before:
+                    Color:
+                        rgba: .5, .5, .5, 1
+                    Rectangle:
+                        pos: self.pos
+                        size: self.width + 2.5, self.height
+                padding: 5
+                spacing: 2.5
+                Button:
+                Button:
+                Button:
+                Button:
