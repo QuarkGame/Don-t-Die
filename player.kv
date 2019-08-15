@@ -2,16 +2,14 @@
 
 <Player>:
     size_hint: None, None
-    size: 30, 50
+    size: 35, 35
 
-    canvas.before:
-        PopMatrix
+    canvas:
         Color:
             rgba: .6, .6, .6, 1
         Rectangle:
             pos: self.pos
             size: self.size
-        PushMatrix
 
 <Ground>:
     canvas:
