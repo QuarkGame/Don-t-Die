@@ -7,7 +7,7 @@ class Tree(Widget):
 
     def on_pos(self, instance, value):
         if self.collide_widget(Player.player):
-            print('xxx')
+            pass
 
 
 class Stone(Widget):
