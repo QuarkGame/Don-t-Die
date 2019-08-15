@@ -23,7 +23,7 @@ class Player(Widget):
         if keycode[1] == 'w':
             # self.center_y += 5
             if not self.move:
-                self.move = Clock.schedule_interval(lambda dt: (self.__setattr__("center_y", self.center_y + 1)), .01)
+                self.move = Clock.schedule_interval(lambda dt: (self.__setattr__("center_y", self.center_y + 2)), .01)
         elif keycode[1] == 's':
             self.center_y -= 5
         elif keycode[1] == 'a':
