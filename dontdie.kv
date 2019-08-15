@@ -58,13 +58,15 @@ RelativeLayout:
         anchor_y: 'bottom'
         padding: 10
         BoxLayout:
-            spacing: 2.5
+            spacing: 7.5
             size_hint: None, None
-            size: 400, 50
+            size: 400, 47.5
             Button:
+                text: 'Backpack'
                 size_hint_x: None
                 width: 75
             Button:
+                text: 'Craft'
                 size_hint_x: None
                 width: 75
             BoxLayout:
@@ -74,6 +76,8 @@ RelativeLayout:
                     Rectangle:
                         pos: self.pos
                         size: self.width + 2.5, self.height
+                size_hint_y: None
+                height: 60
                 padding: 5
                 spacing: 2.5
                 Button:
