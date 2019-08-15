@@ -1,3 +1,14 @@
 #:import entities entities
 
-<Player>
+<Player>:
+    size_hint: None, None
+    size: 30, 50
+
+    canvas.before:
+        PopMatrix
+        Color:
+            rgba: .6, .6, .6, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        PushMatrix
