@@ -1,0 +1,61 @@
+<Bar@BoxLayout>:
+    max: 1
+    value: 1
+    size_hint: None, None
+    size: 200, 35
+
+    canvas.before:
+
+        Color:
+            rgba: 0, 0, 1, 1
+        Rectangle:
+            pos: root.pos
+            size: root.size
+
+        Color:
+            rgba: 1, 0, 0, 1
+        Rectangle:
+            pos: root.pos
+            size: root.width * root.value / root.max, root.height
+
+        Color:
+            rgba: .5, .5, .5, 1
+        Line:
+            rectangle: root.x - 1, root.y - 1, root.width - 1, root.height - 1
+            width: 3
+
+
+RelativeLayout:
+
+    RelativeLayout:
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'top'
+        BoxLayout:
+            size_hint: None, None
+            size: self.minimum_size
+            orientation: 'vertical'
+            padding: 10
+            spacing: 10
+
+            Bar:
+                max: 100
+                value: 75
+            Bar:
+                max: 300
+                value: 300
+
+    AnchorLayout:
+        anchor_x: 'right'
+        anchor_y: 'top'
+        padding: 10
+        Button:
+            text: 'Menu'
+            size_hint: None, None
+            size: 75, 35
+
+    AnchorLayout:
+        anchor_x: 'left'
+        anchor_y: 'bottom'
+        BoxLayout:
+
