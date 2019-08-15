@@ -29,6 +29,7 @@ RelativeLayout:
 
     Ground:
         Player:
+            id: player
             pos: root.center
         Tree:
             left: 0
@@ -46,10 +47,10 @@ RelativeLayout:
 
             Bar:
                 max: 100
-                value: 75
+                value: player._health
             Bar:
                 max: 300
-                value: 300
+                value: player._hunger
 
     AnchorLayout:
         anchor_x: 'right'
