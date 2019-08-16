@@ -14,10 +14,10 @@ hunger_drop_rate = 10
 interact_limit = 50
 health_max = 100
 hunger_max = 300
-directions = {'w': ('center_y', - base_speed),
-              'a': ('center_x', base_speed),
-              's': ('center_y', base_speed),
-              'd': ('center_x', - base_speed)}
+directions = {'w': ('s', 'center_y', - base_speed),
+              'a': ('d', 'center_x', base_speed),
+              's': ('w', 'center_y', base_speed),
+              'd': ('a', 'center_x', - base_speed)}
 
 
 class Player(Widget):
@@ -111,7 +111,10 @@ class Ground(Widget):
         self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
         self._keyboard.bind(on_key_down=self._on_keyboard_down)
         self._keyboard.bind(on_key_up=self._on_keyboard_up)
-        self.move_events = {'w': None, 'a': None, 's': None, 'd': None}
+
+        self.velocity_x, self.velocity_y = 0, 0
+        self.move_events = set()
+        Clock.schedule_interval(self.update, 0.01)
         Ground.ground = self
 
     def _keyboard_closed(self):
@@ -123,18 +126,15 @@ class Ground(Widget):
         if Player.player.dead:
             return
         key_id, key_chr = keycode
-        if key_chr in directions and not self.move_events[key_chr]:
-            attr, val = directions[key_chr]
-            self.move_events[key_chr] = Clock.schedule_interval(lambda dt: self.move(attr, val, dt=dt), 0.01)
+        if key_chr in directions:
+            self.move_events.add(key_chr)
         elif key_chr == 'e':
             Player.player.interact()
-        return True
 
     def _on_keyboard_up(self, keyboard, keycode):
         key_id, key_chr = keycode
-        if key_chr in directions:
-            self.move_events[key_chr].cancel()
-            self.move_events[key_chr] = None
+        if key_chr in directions and key_chr in self.move_events:
+            self.move_events.remove(key_chr)
         return True
 
     def move(self, attr, val, dt=None):
@@ -144,3 +144,10 @@ class Ground(Widget):
         for child in self.children:
             if not isinstance(child, Player):
                 setattr(child, attr, getattr(child, attr) + val)
+
+    def update(self, dt):
+        for direction, instruct in directions.items():
+            opposite, attr, val = instruct
+            if direction in self.move_events and opposite not in self.move_events:
+                if not Player.player.dead:
+                    self.move(attr, val, dt=dt)
