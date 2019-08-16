@@ -7,6 +7,7 @@ from kivy.uix.widget import Widget
 from kivy.properties import BoundedNumericProperty
 
 base_speed = 2
+starve_rate = 10
 directions = {'w': ('center_y', - base_speed),
               'a': ('center_x', base_speed),
               's': ('center_y', base_speed),
@@ -47,11 +48,13 @@ class Player(Widget):
         try:
             self._hunger = value
         except ValueError:
-            if not self.starve_event:
-                self.starve_event = Clock.schedule_interval(self.stave, 0.01)
+            if self._hunger < 0:
+                self._hunger = 0
+                if not self.starve_event:
+                    self.starve_event = Clock.schedule_interval(self.starve, 0.01)
 
-    def stave(self, dt):
-        self.health -= dt * 10
+    def starve(self, dt):
+        self.health -= dt * starve_rate
         if self.hunger > 0:
             self.starve_event.cancel()
             self.starve_event = None
@@ -59,7 +62,6 @@ class Player(Widget):
     def update(self, dt):
         for other in Ground.ground.children:
             if self.collide_widget(other) and other is not Player.player:
-                self.health -= 0.5
                 dx = other.center_x - self.center_x
                 dy = other.center_y - self.center_y
                 if abs(dx) > abs(dy):

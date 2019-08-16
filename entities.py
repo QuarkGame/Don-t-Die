@@ -8,7 +8,7 @@ class Tree(Widget):
 
     def on_pos(self, instance, value):
         if self.collide_widget(Player.player):
-            pass
+            Player.player.hunger += 10
 
 
 class Stone(Widget):
