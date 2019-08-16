@@ -1,5 +1,18 @@
 #:import entities entities
 
+<Leaves>:
+    size_hint: None, None
+    size: 50, 50
+
+    canvas.before:
+        PopMatrix
+        Color:
+            rgba: .3, .8, .1, .5
+        Ellipse:
+            pos: self.pos
+            size: self.size
+        PushMatrix
+
 <Bush>:
     size_hint: None, None
     size: 50, 50

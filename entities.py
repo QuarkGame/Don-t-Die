@@ -1,7 +1,7 @@
 import kivy
 
 from kivy.uix.widget import Widget
-from player import Player
+from player import *
 
 
 class Entity(Widget):
@@ -11,6 +11,10 @@ class Entity(Widget):
 
     def loot(self):
         pass
+
+
+class Transparent(Widget):
+    pass
 
 
 class Bush(Entity):
@@ -23,6 +27,10 @@ class FirstAidKit(Entity):
 
     def loot(self):
         Player.player.health += 10
+
+
+class Leaves(Transparent):
+    pass
 
 
 class Stone(Widget):
