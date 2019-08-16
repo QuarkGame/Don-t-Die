@@ -1,4 +1,5 @@
 <Bar@BoxLayout>:
+    text: ''
     max: 1
     value: 1
     size_hint: None, None
@@ -23,6 +24,9 @@
         Line:
             rectangle: root.x - 1, root.y - 1, root.width - 1, root.height - 1
             width: 3
+
+    Label:
+        text: '{} {:.0f}/{:.0f}'.format(root.text, root.value, root.max)
 
 
 RelativeLayout:
@@ -49,9 +53,11 @@ RelativeLayout:
             spacing: 10
 
             Bar:
+                text: 'health'
                 max: 100
                 value: player._health
             Bar:
+                text: 'hunger'
                 max: 300
                 value: player._hunger
 
