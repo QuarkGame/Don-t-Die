@@ -4,11 +4,25 @@ from kivy.uix.widget import Widget
 from player import Player
 
 
-class Tree(Widget):
+class Entity(Widget):
 
     def on_pos(self, instance, value):
-        if self.collide_widget(Player.player):
-            Player.player.hunger += 10
+        pass
+
+    def loot(self):
+        pass
+
+
+class Bush(Entity):
+
+    def loot(self):
+        Player.player.hunger += 10
+
+
+class FirstAidKit(Entity):
+
+    def loot(self):
+        Player.player.health += 10
 
 
 class Stone(Widget):

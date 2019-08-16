@@ -4,11 +4,15 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
-from kivy.properties import BoundedNumericProperty
+from kivy.properties import NumericProperty
+from kivy.vector import Vector
 
 base_speed = 2
 starve_health_rate = 10
 hunger_drop_rate = 10
+interact_limit = 50
+health_max = 100
+hunger_max = 300
 directions = {'w': ('center_y', - base_speed),
               'a': ('center_x', base_speed),
               's': ('center_y', base_speed),
@@ -17,8 +21,8 @@ directions = {'w': ('center_y', - base_speed),
 
 class Player(Widget):
 
-    _health = BoundedNumericProperty(100, min=0, max=100)
-    _hunger = BoundedNumericProperty(300, min=0, max=300)
+    _health = NumericProperty(health_max)
+    _hunger = NumericProperty(hunger_max)
 
     player = None
 
@@ -35,9 +39,9 @@ class Player(Widget):
 
     @health.setter
     def health(self, value):
-        try:
-            self._health = value
-        except ValueError:
+        self._health = value
+        if self._health <= 0:
+            self._health = 0
             self.die()
 
     @property
@@ -46,19 +50,27 @@ class Player(Widget):
 
     @hunger.setter
     def hunger(self, value):
-        try:
-            self._hunger = value
-        except ValueError:
-            if self._hunger < 0:
-                self._hunger = 0
-                if not self.starve_event:
-                    self.starve_event = Clock.schedule_interval(self.starve, 0.01)
+        self._hunger = value
+        if self._hunger <= 0:
+            self._hunger = 0
+            if not self.starve_event:
+                self.starve_event = Clock.schedule_interval(self.starve, 0.01)
+        elif self._hunger > hunger_max:
+            self._hunger = hunger_max
 
     def starve(self, dt):
         self.health -= dt * starve_health_rate
         if self.hunger > 0:
             self.starve_event.cancel()
             self.starve_event = None
+
+    def interact(self):
+        for other in Ground.ground.children:
+            if other is Player.player:
+                continue
+            dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
+            if dist <= interact_limit and hasattr(other, "loot"):
+                other.loot()
 
     def update(self, dt):
         for other in Ground.ground.children:
@@ -106,6 +118,8 @@ class Ground(Widget):
         if key_chr in directions and not self.move_events[key_chr]:
             attr, val = directions[key_chr]
             self.move_events[key_chr] = Clock.schedule_interval(lambda dt: self.move(attr, val, dt=dt), 0.01)
+        elif key_chr == 'e':
+            Player.player.interact()
         return True
 
     def _on_keyboard_up(self, keyboard, keycode):
@@ -116,6 +130,8 @@ class Ground(Widget):
         return True
 
     def move(self, attr, val, dt=None):
+        if dt:
+            Player.player.hunger -= dt * abs(val) * hunger_drop_rate
         setattr(self, attr, getattr(self, attr) + val)
         for child in self.children:
             if not isinstance(child, Player):

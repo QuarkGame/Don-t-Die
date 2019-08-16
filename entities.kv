@@ -1,6 +1,6 @@
 #:import entities entities
 
-<Tree>:
+<Bush>:
     size_hint: None, None
     size: 50, 50
 
@@ -11,4 +11,25 @@
         Ellipse:
             pos: self.pos
             size: self.size
+        PushMatrix
+
+<FirstAidKit>:
+    size_hint: None, None
+    size: 50, 50
+
+    canvas.before:
+        PopMatrix
+        Color:
+            rgba: 1, 1, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+        Color:
+            rgba: 1, 0, 0, 1
+        Line:
+            points: self.center_x, self.y + .8 * self.height, self.center_x, self.y + .2 * self.height
+            width: .1 * self.width
+        Line:
+            points: self.x + .8 * self.width, self.center_y, self.x + .2 * self.width, self.center_y
+            width: .1 * self.height
         PushMatrix
