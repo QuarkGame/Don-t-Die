@@ -8,7 +8,7 @@ from kivy.uix.label import Label
 from kivy.properties import NumericProperty
 from kivy.vector import Vector
 
-from entities import *
+import entities
 
 base_speed = 2
 starve_health_rate = 10
@@ -79,7 +79,7 @@ class Player(Widget):
 
     def update(self, dt):
         for other in Ground.ground.children:
-            if self.collide_widget(other) and isinstance(other, Entity):
+            if self.collide_widget(other) and isinstance(other, entities.Entity):
                 dx = other.center_x - self.center_x
                 dy = other.center_y - self.center_y
                 if abs(dx) > abs(dy):

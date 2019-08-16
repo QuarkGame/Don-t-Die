@@ -1,7 +1,8 @@
 import kivy
 
 from kivy.uix.widget import Widget
-from player import *
+
+import player
 
 
 class Entity(Widget):
@@ -20,13 +21,13 @@ class Transparent(Widget):
 class Bush(Entity):
 
     def loot(self):
-        Player.player.hunger += 10
+        player.Player.player.hunger += 10
 
 
 class FirstAidKit(Entity):
 
     def loot(self):
-        Player.player.health += 10
+        player.Player.player.health += 10
 
 
 class Leaves(Transparent):
