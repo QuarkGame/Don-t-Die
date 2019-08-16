@@ -92,7 +92,7 @@ class Player(Widget):
                         move_val = base_speed
                     else:
                         move_val = - base_speed
-                Ground.ground.move(dir_attr, move_val)
+                Ground.ground.move(dir_attr, move_val, dt=-dt)
 
     def die(self):
         self.dead = True
