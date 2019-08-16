@@ -4,6 +4,7 @@ from kivy.clock import Clock
 from kivy.core.window import Window
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
+from kivy.uix.label import Label
 from kivy.properties import NumericProperty
 from kivy.vector import Vector
 
@@ -43,6 +44,8 @@ class Player(Widget):
         if self._health <= 0:
             self._health = 0
             self.die()
+        elif self._health > health_max:
+            self._health = health_max
 
     @property
     def hunger(self):
@@ -93,7 +96,10 @@ class Player(Widget):
 
     def die(self):
         self.dead = True
-        print("Game over")
+        if not hasattr(self, "dead_sign"):
+            self.dead_sign = self.parent.add_widget(Label(text="You died!",
+                                                          font_size="100dp",
+                                                          pos=self.pos))
 
 
 class Ground(Widget):
@@ -114,6 +120,8 @@ class Ground(Widget):
         self._keyboard = None
 
     def _on_keyboard_down(self, keyboard, keycode, text, modifiers):
+        if Player.player.dead:
+            return
         key_id, key_chr = keycode
         if key_chr in directions and not self.move_events[key_chr]:
             attr, val = directions[key_chr]
