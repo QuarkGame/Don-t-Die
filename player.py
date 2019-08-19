@@ -1,4 +1,6 @@
 import kivy
+import entities
+import math
 
 from kivy.clock import Clock
 from kivy.core.window import Window
@@ -12,8 +14,7 @@ import entities
 
 base_speed = 2
 starve_health_rate = 10
-hunger_drop_rate = 10
-interact_limit = 50
+hunger_drop_rate = 50
 health_max = 100
 hunger_max = 300
 directions = {'w': ('s', 'center_y', - base_speed),
@@ -26,12 +27,14 @@ class Player(Widget):
 
     _health = NumericProperty(health_max)
     _hunger = NumericProperty(hunger_max)
+    _angle = NumericProperty(0)
 
     player = None
 
     def __init__(self, **kwargs):
         self.dead = False
         self.starve_event = None
+        self.interact_limit = 0
         Player.player = self
         Clock.schedule_interval(self.update, 0.01)
         super(Player, self).__init__(**kwargs)
@@ -72,10 +75,20 @@ class Player(Widget):
     def interact(self):
         for other in Ground.ground.children:
             if other is Player.player:
-                continue
+                pass
             dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
-            if dist <= interact_limit and hasattr(other, "loot"):
-                other.loot()
+            if hasattr(other, "loot"):
+                self.interact_limit = other.radius + (0.1 * other.radius)
+                if other.center_y - (other.radius / 2) < self.center_y < other.center_y + (other.radius / 2):
+                    self._angle = 0
+                elif other.center_x - (other.radius / 2) < self.center_x < other.x + (other.radius / 2):
+                    self._angle = 0
+                else:
+                    self._angle = (math.atan(abs(other.center_y - self.center_y) /
+                                             int(abs(other.center_x - self.center_x)))
+                                   * (180 / math.pi))
+                if dist <= self.interact_limit:
+                    other.loot()
 
     def update(self, dt):
         for other in Ground.ground.children:
@@ -94,7 +107,7 @@ class Player(Widget):
                         move_val = base_speed
                     else:
                         move_val = - base_speed
-                Ground.ground.move(dir_attr, move_val, dt=-dt)
+                Ground.ground.move(dir_attr, move_val, dt=-dt, passive=True)
 
     def die(self):
         self.dead = True
@@ -139,8 +152,8 @@ class Ground(Widget):
             self.move_events.remove(key_chr)
         return True
 
-    def move(self, attr, val, dt=None):
-        if dt:
+    def move(self, attr, val, dt=None, passive=False):
+        if dt and Player.player.hunger:
             Player.player.hunger -= dt * abs(val) * hunger_drop_rate
         setattr(self, attr, getattr(self, attr) + val)
         for child in self.children:
