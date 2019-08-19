@@ -13,8 +13,14 @@
 
 <Ground>:
     canvas:
-        Color:
-            rgba: .35, .2, 0, 1
+        # Color:
+        #     rgba: .35, .2, 0, 1
         Rectangle:
             pos: self.x - 1000, self.y - 1000
             size: 2000, 2000
+    Image:
+        source: 'assets/sprites/terrain/grass_terrain.png'
+        allow_stretch: True
+        size: 2000, 2000
+        # TODO: Tile image
+        # size: self.texture_size
