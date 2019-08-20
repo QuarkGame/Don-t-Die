@@ -4,6 +4,7 @@ import math
 
 from kivy.clock import Clock
 from kivy.core.window import Window
+from kivy.graphics import Line
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
@@ -183,6 +184,13 @@ class ItemBox(ToggleButton):
         self.image = kwargs.pop('image')
         if self.image == '':
             self.image = 'atlas://data/images/defaulttheme/button'
+        self.background_normal = self.background_down = self.image
+
+    def on_state(self, instance, value):
+        if value == "down":
+            self.border = 0, 0, 0, 0
+        else:
+            self.border = 4, 4, 4, 4
 
 
 class InventoryBox(BoxLayout):
@@ -192,7 +200,7 @@ class InventoryBox(BoxLayout):
         for each in range(4):
             try:
                 if inventory[each]:
-                    self.add_widget(ItemBox(image=inventory[each][1], border=(3, 3, 3, 3)))
+                    self.add_widget(ItemBox(image=inventory[each][1], border=(4, 4, 4, 4)))
             except IndexError:
                 self.add_widget(ItemBox(image=''))
 
