@@ -90,9 +90,7 @@ class Player(Widget):
 
     def update(self, dt):
         for other in Ground.ground.children:
-            dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
             if self.collide_widget(other) and isinstance(other, entities.Entity):
-                self.interact_limit = other.radius + (other.radius * 0.08)
                 dx = other.center_x - self.center_x
                 dy = other.center_y - self.center_y
                 if abs(dx) > abs(dy):

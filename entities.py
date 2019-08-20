@@ -30,6 +30,7 @@ class Interactive(Widget):
 
     def update(self, dt):
         other = player.Player.player
+        other.interact_limit = self.radius + (self.radius * 0.08)
         dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
         if dist <= player.Player.player.interact_limit and not self.cool_down:
             if not hasattr(self, "action_btn") or not self.action_btn:
