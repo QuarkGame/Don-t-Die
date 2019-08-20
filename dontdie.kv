@@ -28,6 +28,24 @@
     Label:
         text: '{} {:.0f}/{:.0f}'.format(root.text, root.value, root.max)
 
+<InventoryBox>:
+    canvas.before:
+        Color:
+            rgba: .5, .5, .5, .7
+        Rectangle:
+            pos: self.pos
+            size: self.width + 2.5, self.height
+    size_hint_y: None
+    height: 60
+    padding: 5
+    spacing: 2.5
+    ItemBox:
+    ItemBox:
+    ItemBox:
+    ItemBox:
+
+<ItemBox>:
+    background_normal: self.image
 
 RelativeLayout:
 
@@ -89,23 +107,4 @@ RelativeLayout:
                 text: 'Craft'
                 size_hint_x: None
                 width: 75
-            BoxLayout:
-                canvas.before:
-                    Color:
-                        rgba: .5, .5, .5, .7
-                    Rectangle:
-                        pos: self.pos
-                        size: self.width + 2.5, self.height
-                size_hint_y: None
-                height: 60
-                padding: 5
-                spacing: 2.5
-
-                ToggleButton:
-                    group: "inventory"
-                ToggleButton:
-                    group: "inventory"
-                ToggleButton:
-                    group: "inventory"
-                ToggleButton:
-                    group: "inventory"
+            InventoryBox:

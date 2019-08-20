@@ -9,6 +9,8 @@ from kivy.uix.widget import Widget
 from kivy.uix.label import Label
 from kivy.properties import NumericProperty
 from kivy.vector import Vector
+from kivy.uix.togglebutton import ToggleButton
+from kivy.uix.boxlayout import BoxLayout
 
 import entities
 
@@ -21,6 +23,8 @@ directions = {'w': ('s', 0, -base_speed),
               'a': ('d', base_speed, 0),
               's': ('w', 0, base_speed),
               'd': ('a', -base_speed, 0)}
+
+inventory = [('Diamond Pickaxe', 'assets/sprites/material/diamond_pick.png')]
 
 
 class Player(Widget):
@@ -166,3 +170,21 @@ class Ground(RelativeLayout):
             if direction in self.move_events and opposite not in self.move_events:
                 if not Player.player.dead:
                     self.move(move_x, move_y, dt=dt)
+
+
+class ItemBox(ToggleButton):
+
+    def __init__(self, **kwargs):
+        super(ItemBox, self).__init__(**kwargs)
+        self.image = ''
+
+
+class InventoryBox(BoxLayout):
+
+    def __init__(self, **kwargs):
+        super(InventoryBox, self).__init__(**kwargs)
+        for each in range(len(self.children)):
+            print(each)
+            if inventory[each - 1]:
+                (self.children[each]).image = inventory[each - 1][1]
+
