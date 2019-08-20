@@ -5,6 +5,7 @@
     size: 35, 35
 
     canvas:
+        PopMatrix
         Rotate:
             angle: self._angle
             origin: self.center
@@ -13,6 +14,7 @@
         Rectangle:
             pos: self.pos
             size: self.size
+        PushMatrix
 
 <Ground>:
     canvas:
@@ -24,6 +26,6 @@
     Image:
         source: 'assets/sprites/terrain/mud_terrain.png'
         allow_stretch: True
+        size_hint: None, None
         size: 2000, 2000
         # TODO: Tile image
-        # size: self.texture_size

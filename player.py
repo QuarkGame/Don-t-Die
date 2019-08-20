@@ -14,13 +14,13 @@ import entities
 
 base_speed = 2
 starve_health_rate = 10
-hunger_drop_rate = 50
+hunger_drop_rate = 5
 health_max = 100
 hunger_max = 300
-directions = {'w': ('s', 'center_y', - base_speed),
-              'a': ('d', 'center_x', base_speed),
-              's': ('w', 'center_y', base_speed),
-              'd': ('a', 'center_x', - base_speed)}
+directions = {'w': ('s', 0, -base_speed),
+              'a': ('d', base_speed, 0),
+              's': ('w', 0, base_speed),
+              'd': ('a', -base_speed, 0)}
 
 
 class Player(Widget):
@@ -74,11 +74,9 @@ class Player(Widget):
 
     def interact(self):
         for other in Ground.ground.children:
-            if other is Player.player:
-                pass
             dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
             if hasattr(other, "loot"):
-                self.interact_limit = other.radius + (0.1 * other.radius)
+                # self.interact_limit = other.radius + (0.1 * other.radius)
                 if other.center_y - (other.radius / 2) < self.center_y < other.center_y + (other.radius / 2):
                     self._angle = 0
                 elif other.center_x - (other.radius / 2) < self.center_x < other.x + (other.radius / 2):
@@ -92,22 +90,24 @@ class Player(Widget):
 
     def update(self, dt):
         for other in Ground.ground.children:
+            dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
             if self.collide_widget(other) and isinstance(other, entities.Entity):
+                self.interact_limit = other.radius + (other.radius * 0.08)
                 dx = other.center_x - self.center_x
                 dy = other.center_y - self.center_y
                 if abs(dx) > abs(dy):
-                    dir_attr = 'center_x'
+                    move_y = 0
                     if dx > 0:
-                        move_val = base_speed
+                        move_x = base_speed
                     else:
-                        move_val = - base_speed
+                        move_x = - base_speed
                 else:
-                    dir_attr = 'center_y'
+                    move_x = 0
                     if dy > 0:
-                        move_val = base_speed
+                        move_y = base_speed
                     else:
-                        move_val = - base_speed
-                Ground.ground.move(dir_attr, move_val, dt=-dt, passive=True)
+                        move_y = - base_speed
+                Ground.ground.move(move_x, move_y, dt=-dt, passive=True)
 
     def die(self):
         self.dead = True
@@ -117,7 +117,7 @@ class Player(Widget):
                                                           pos=self.pos))
 
 
-class Ground(Widget):
+class Ground(RelativeLayout):
 
     ground = None
 
@@ -152,17 +152,19 @@ class Ground(Widget):
             self.move_events.remove(key_chr)
         return True
 
-    def move(self, attr, val, dt=None, passive=False):
+    def move(self, move_x, move_y, dt=None, passive=False):
         if dt and Player.player.hunger:
-            Player.player.hunger -= dt * abs(val) * hunger_drop_rate
-        setattr(self, attr, getattr(self, attr) + val)
+            move = math.sqrt(move_x ** 2 + move_y ** 2)
+            Player.player.hunger -= dt * abs(move) * hunger_drop_rate
+        # self.center_x += move_x
+        # self.center_y += move_y
         for child in self.children:
-            if not isinstance(child, Player):
-                setattr(child, attr, getattr(child, attr) + val)
+            child.center_x += move_x
+            child.center_y += move_y
 
     def update(self, dt):
         for direction, instruct in directions.items():
-            opposite, attr, val = instruct
+            opposite, move_x, move_y = instruct
             if direction in self.move_events and opposite not in self.move_events:
                 if not Player.player.dead:
-                    self.move(attr, val, dt=dt)
+                    self.move(move_x, move_y, dt=dt)
