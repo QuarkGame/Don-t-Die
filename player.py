@@ -7,7 +7,7 @@ from kivy.core.window import Window
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
-from kivy.properties import NumericProperty
+from kivy.properties import NumericProperty, StringProperty
 from kivy.vector import Vector
 from kivy.uix.togglebutton import ToggleButton
 from kivy.uix.boxlayout import BoxLayout
@@ -24,7 +24,10 @@ directions = {'w': ('s', 0, -base_speed),
               's': ('w', 0, base_speed),
               'd': ('a', -base_speed, 0)}
 
-inventory = [('Diamond Pickaxe', 'assets/sprites/material/diamond_pick.png')]
+inventory = [('Sword', 'assets/sprites/material/diamond_pick.png'),
+             ('Dirt', ''),
+             ('Bush', ''),
+             ('Med Kit', '')]
 
 
 class Player(Widget):
@@ -173,18 +176,23 @@ class Ground(RelativeLayout):
 
 
 class ItemBox(ToggleButton):
+    image = StringProperty()
 
     def __init__(self, **kwargs):
         super(ItemBox, self).__init__(**kwargs)
-        self.image = ''
+        self.image = kwargs.pop('image')
+        if self.image == '':
+            self.image = 'atlas://data/images/defaulttheme/button'
 
 
 class InventoryBox(BoxLayout):
 
     def __init__(self, **kwargs):
         super(InventoryBox, self).__init__(**kwargs)
-        for each in range(len(self.children)):
-            print(each)
-            if inventory[each - 1]:
-                (self.children[each]).image = inventory[each - 1][1]
+        for each in range(4):
+            try:
+                if inventory[each]:
+                    self.add_widget(ItemBox(image=inventory[each][1], border=(3, 3, 3, 3)))
+            except IndexError:
+                self.add_widget(ItemBox(image=''))
 

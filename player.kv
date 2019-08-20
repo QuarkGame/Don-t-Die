@@ -29,3 +29,18 @@
         size_hint: None, None
         size: 2000, 2000
         # TODO: Tile image
+
+<ItemBox>:
+    background_normal: self.image
+
+<InventoryBox>:
+    canvas.before:
+        Color:
+            rgba: .5, .5, .5, .7
+        Rectangle:
+            pos: self.pos
+            size: self.width + 2.5, self.height
+    size_hint_y: None
+    height: 60
+    padding: 5
+    spacing: 2.5
