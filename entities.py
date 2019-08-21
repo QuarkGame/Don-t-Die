@@ -30,9 +30,8 @@ class Interactive(Widget):
 
     def update(self, dt):
         other = player.Player.player
-        other.interact_limit = self.radius + (self.radius * 0.08)
         dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
-        if dist <= player.Player.player.interact_limit and not self.cool_down:
+        if dist <= self.interact_limit and not self.cool_down:
             if not hasattr(self, "action_btn") or not self.action_btn:
                 self.action_btn = Button(text="E",
                                          size_hint=(None, None),
@@ -59,6 +58,7 @@ class Bush(Entity, Interactive):
     def __init__(self, **kwargs):
         super(Bush, self).__init__(**kwargs)
         self.radius = 50
+        self.interact_limit = self.radius + (self.radius * 0.08)
 
     def loot(self):
         if super(Bush, self).loot():
@@ -71,6 +71,7 @@ class FirstAidKit(Entity, Interactive):
     def __init__(self, **kwargs):
         super(FirstAidKit, self).__init__(**kwargs)
         self.radius = 75
+        self.interact_limit = self.radius + (self.radius * 0.08)
 
     def loot(self):
         if super(FirstAidKit, self).loot():

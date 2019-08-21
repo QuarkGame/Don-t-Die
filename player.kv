@@ -5,7 +5,7 @@
     size: 35, 35
 
     canvas:
-        PopMatrix
+        PushMatrix
         Rotate:
             angle: self._angle
             origin: self.center
@@ -14,7 +14,7 @@
         Rectangle:
             pos: self.pos
             size: self.size
-        PushMatrix
+        PopMatrix
 
 <Ground>:
     canvas:
