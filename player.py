@@ -17,7 +17,7 @@ import entities
 
 base_speed = 2
 starve_health_rate = 10
-hunger_drop_rate = 5
+hunger_drop_rate = 10
 health_max = 100
 hunger_max = 300
 directions = {'w': ('s', 0, -base_speed),
@@ -25,7 +25,7 @@ directions = {'w': ('s', 0, -base_speed),
               's': ('w', 0, base_speed),
               'd': ('a', -base_speed, 0)}
 
-inventory = [('Sword', 'assets/sprites/material/diamond_pick.png'),
+inventory = [('Pickaxe', 'assets/sprites/material/diamond_pick.png'),
              ('Dirt', ''),
              ('Bush', ''),
              ('Med Kit', '')]
@@ -84,16 +84,15 @@ class Player(Widget):
         for other in Ground.ground.children:
             dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
             if hasattr(other, "loot"):
-                # self.interact_limit = other.radius + (0.1 * other.radius)
                 if other.center_y - (other.radius / 2) < self.center_y < other.center_y + (other.radius / 2):
                     self._angle = 0
                 elif other.center_x - (other.radius / 2) < self.center_x < other.x + (other.radius / 2):
                     self._angle = 0
                 else:
                     self._angle = (math.atan(abs(other.center_y - self.center_y) /
-                                             int(abs(other.center_x - self.center_x)))
+                                             abs(other.center_x - self.center_x))
                                    * (180 / math.pi))
-                if dist <= self.interact_limit:
+                if dist <= other.interact_limit:
                     other.loot()
 
     def update(self, dt):
