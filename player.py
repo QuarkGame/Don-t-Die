@@ -26,9 +26,9 @@ directions = {'w': ('s', 0, -base_speed),
               'd': ('a', -base_speed, 0)}
 
 inventory = [('Pickaxe', 'assets/sprites/material/diamond_pick.png'),
-             ('Dirt', ''),
-             ('Bush', ''),
-             ('Med Kit', '')]
+             ('Stone', 'assets/sprites/material/stone_mat.png'),
+             ('Bush', 'assets/sprites/material/bush_mat.png'),
+             ('grass', 'assets/sprites/material/grass_mat.png')]
 
 
 class Player(Widget):
@@ -80,20 +80,11 @@ class Player(Widget):
             self.starve_event.cancel()
             self.starve_event = None
 
-    def interact(self):
+    @staticmethod
+    def interact():
         for other in Ground.ground.children:
-            dist = Vector(self.center_x, self.center_y).distance(Vector(other.center_x, other.center_y))
-            if hasattr(other, "loot"):
-                if other.center_y - (other.radius / 2) < self.center_y < other.center_y + (other.radius / 2):
-                    self._angle = 0
-                elif other.center_x - (other.radius / 2) < self.center_x < other.x + (other.radius / 2):
-                    self._angle = 0
-                else:
-                    self._angle = (math.atan(abs(other.center_y - self.center_y) /
-                                             abs(other.center_x - self.center_x))
-                                   * (180 / math.pi))
-                if dist <= other.interact_limit:
-                    other.loot()
+            if hasattr(other, "loot") and other.lootable:
+                other.loot()
 
     def update(self, dt):
         for other in Ground.ground.children:
@@ -161,8 +152,6 @@ class Ground(RelativeLayout):
         if dt and Player.player.hunger:
             move = math.sqrt(move_x ** 2 + move_y ** 2)
             Player.player.hunger -= dt * abs(move) * hunger_drop_rate
-        # self.center_x += move_x
-        # self.center_y += move_y
         for child in self.children:
             child.center_x += move_x
             child.center_y += move_y
@@ -181,15 +170,20 @@ class ItemBox(ToggleButton):
     def __init__(self, **kwargs):
         super(ItemBox, self).__init__(**kwargs)
         self.image = kwargs.pop('image')
+        self.outline = None
         if self.image == '':
             self.image = 'atlas://data/images/defaulttheme/button'
         self.background_normal = self.background_down = self.image
 
     def on_state(self, instance, value):
-        if value == "down":
-            self.border = 0, 0, 0, 0
+        if value == "normal":
+            if self.outline:
+                self.canvas.remove(self.outline)
+                self.outline = None
         else:
-            self.border = 4, 4, 4, 4
+            rect = *self.pos, *self.size
+            with self.canvas:
+                self.outline = Line(rectangle=rect, width=2)
 
 
 class InventoryBox(BoxLayout):
