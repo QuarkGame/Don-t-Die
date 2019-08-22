@@ -153,7 +153,8 @@ class Ground(RelativeLayout):
             else:
                 (InventoryBox.body.children[InventoryBox.selected[1]]).on_state(
                  instance=(InventoryBox.body.children[InventoryBox.selected[1]]), value='normal')
-            InventoryBox.selected[0] = False
+                (InventoryBox.body.children[-int(key_chr)]).on_state(
+                    instance=(InventoryBox.body.children[-int(key_chr)]), value='down')
 
     def _on_keyboard_up(self, keyboard, keycode):
         key_id, key_chr = keycode
@@ -190,15 +191,28 @@ class ItemBox(ToggleButton):
         self.background_normal = self.background_down = self.image
 
     def on_state(self, instance, value):
-        if value == "normal":
-            if self.outline:
+        if InventoryBox.selected[0]:
+            if value == "normal":
+                InventoryBox.selected[0] = False
                 self.canvas.remove(self.outline)
                 self.outline = None
+            else:
+                if InventoryBox.body.children[InventoryBox.selected[1]] == self:
+                    self.on_state(
+                        instance=InventoryBox.body.children[InventoryBox.selected[1]], value='normal')
+                else:
+                    InventoryBox.body.children[InventoryBox.selected[1]].on_state(
+                        instance=InventoryBox.body.children[InventoryBox.selected[1]], value='normal')
+                    self.on_state(
+                        instance=InventoryBox.body.children[InventoryBox.selected[1]], value='down')
         else:
-            rect = *self.pos, *self.size
-            with self.canvas:
-                Color(rgba=(.2, .2, .2, 1))
-                self.outline = Line(rectangle=rect, width=1.25)
+            if value:
+                InventoryBox.selected[0] = True
+                InventoryBox.selected[1] = InventoryBox.body.children.index(instance) - 4
+                rect = *self.pos, *self.size
+                with self.canvas:
+                    Color(rgba=(.2, .2, .2, 1))
+                    self.outline = Line(rectangle=rect, width=1.25)
 
 
 class InventoryBox(BoxLayout):
