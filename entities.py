@@ -24,6 +24,8 @@ class Transparent(Widget):
 
 class Interactive(Widget):
 
+    lootable = BooleanProperty()
+
     def __init__(self, **kwargs):
         self.cool_down = False
         Clock.schedule_interval(self.update, 0.01)
@@ -47,12 +49,12 @@ class Interactive(Widget):
                     self.add_widget(self.action_btn)
                     self.lootable = True
             else:
-                self.action_btn
+                self.action_btn = None
                 self.clear_widgets()
                 self.lootable = False
         else:
+            other._angle = 0
             if hasattr(self, "action_btn") and self.action_btn:
-                other._angle = 0
                 self.action_btn = None
                 self.clear_widgets()
                 self.lootable = False

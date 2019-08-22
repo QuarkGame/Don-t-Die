@@ -4,7 +4,7 @@ import math
 
 from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.graphics import Line
+from kivy.graphics import Line, Color
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
@@ -141,6 +141,19 @@ class Ground(RelativeLayout):
             self.move_events.add(key_chr)
         elif key_chr == 'e':
             Player.player.interact()
+        elif (key_chr == '1' or key_chr == '2' or key_chr == '3' or key_chr == '4') and not InventoryBox.selected[0]:
+            (InventoryBox.body.children[-int(key_chr)]).on_state(
+             instance=(InventoryBox.body.children[-int(key_chr)]), value='down')
+            InventoryBox.selected[0] = True
+            InventoryBox.selected[1] = -int(key_chr)
+        elif (key_chr == '1' or key_chr == '2' or key_chr == '3' or key_chr == '4') and InventoryBox.selected[0]:
+            if -int(key_chr) == InventoryBox.selected[1]:
+                (InventoryBox.body.children[-int(key_chr)]).on_state(
+                 instance=(InventoryBox.body.children[-int(key_chr)]), value='normal')
+            else:
+                (InventoryBox.body.children[InventoryBox.selected[1]]).on_state(
+                 instance=(InventoryBox.body.children[InventoryBox.selected[1]]), value='normal')
+            InventoryBox.selected[0] = False
 
     def _on_keyboard_up(self, keyboard, keycode):
         key_id, key_chr = keycode
@@ -171,6 +184,7 @@ class ItemBox(ToggleButton):
         super(ItemBox, self).__init__(**kwargs)
         self.image = kwargs.pop('image')
         self.outline = None
+        self.group = "inventory"
         if self.image == '':
             self.image = 'atlas://data/images/defaulttheme/button'
         self.background_normal = self.background_down = self.image
@@ -183,13 +197,17 @@ class ItemBox(ToggleButton):
         else:
             rect = *self.pos, *self.size
             with self.canvas:
-                self.outline = Line(rectangle=rect, width=2)
+                Color(rgba=(.2, .2, .2, 1))
+                self.outline = Line(rectangle=rect, width=1.25)
 
 
 class InventoryBox(BoxLayout):
+    body = None
+    selected = [False, None]
 
     def __init__(self, **kwargs):
         super(InventoryBox, self).__init__(**kwargs)
+        InventoryBox.body = self
         for each in range(4):
             try:
                 if inventory[each]:
