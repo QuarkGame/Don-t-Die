@@ -4,7 +4,8 @@ import math
 
 from kivy.clock import Clock
 from kivy.core.window import Window
-from kivy.graphics import Line, Color
+from kivy.graphics import Color, Line, Rectangle
+from kivy.uix.image import Image
 from kivy.uix.relativelayout import RelativeLayout
 from kivy.uix.widget import Widget
 from kivy.uix.label import Label
@@ -15,6 +16,7 @@ from kivy.uix.boxlayout import BoxLayout
 
 import entities
 
+block_size = 100
 base_speed = 2
 starve_health_rate = 10
 hunger_drop_rate = 10
@@ -128,6 +130,16 @@ class Ground(RelativeLayout):
         Clock.schedule_interval(self.update, 0.01)
         Ground.ground = self
 
+        Clock.schedule_once(lambda _: self.refresh())
+
+    def refresh(self):
+        for x in range(0, self.width, block_size):
+            for y in range(0, self.height, block_size):
+                self.add_widget(Image(source="assets/sprites/terrain/mud_terrain.png",
+                                      pos=(x, y),
+                                      size_hint=(None, None),
+                                      size=(block_size, block_size)))
+
     def _keyboard_closed(self):
         self._keyboard.unbind(on_key_down=self._on_keyboard_down)
         self._keyboard.unbind(on_key_up=self._on_keyboard_up)
@@ -141,20 +153,27 @@ class Ground(RelativeLayout):
             self.move_events.add(key_chr)
         elif key_chr == 'e':
             Player.player.interact()
-        elif (key_chr == '1' or key_chr == '2' or key_chr == '3' or key_chr == '4') and not InventoryBox.selected[0]:
-            (InventoryBox.body.children[-int(key_chr)]).on_state(
-             instance=(InventoryBox.body.children[-int(key_chr)]), value='down')
-            InventoryBox.selected[0] = True
-            InventoryBox.selected[1] = -int(key_chr)
-        elif (key_chr == '1' or key_chr == '2' or key_chr == '3' or key_chr == '4') and InventoryBox.selected[0]:
-            if -int(key_chr) == InventoryBox.selected[1]:
-                (InventoryBox.body.children[-int(key_chr)]).on_state(
-                 instance=(InventoryBox.body.children[-int(key_chr)]), value='normal')
-            else:
-                (InventoryBox.body.children[InventoryBox.selected[1]]).on_state(
-                 instance=(InventoryBox.body.children[InventoryBox.selected[1]]), value='normal')
-                (InventoryBox.body.children[-int(key_chr)]).on_state(
-                    instance=(InventoryBox.body.children[-int(key_chr)]), value='down')
+        # elif key_chr in '1234' and not InventoryBox.selected[0]:
+        #     (InventoryBox.body.children[-int(key_chr)]).on_state(
+        #      instance=(InventoryBox.body.children[-int(key_chr)]), value='down')
+        #     InventoryBox.selected[0] = True
+        #     InventoryBox.selected[1] = -int(key_chr)
+        elif key_chr in map(str, range(1, len(InventoryBox.body.children) + 1)):
+            if not InventoryBox.pressed:
+                pressed_box = InventoryBox.body.children[-int(key_chr)]
+                for child in InventoryBox.body.children:
+                    if child is pressed_box:
+                        child.state = "normal" if pressed_box.state == "down" else "down"
+                    else:
+                        child.state = "normal"
+            # if -int(key_chr) == InventoryBox.selected[1]:
+            #     (InventoryBox.body.children[-int(key_chr)]).on_state(
+            #      instance=(InventoryBox.body.children[-int(key_chr)]), value='normal')
+            # else:
+            #     (InventoryBox.body.children[InventoryBox.selected[1]]).on_state(
+            #      instance=(InventoryBox.body.children[InventoryBox.selected[1]]), value='normal')
+            #     (InventoryBox.body.children[-int(key_chr)]).on_state(
+            #         instance=(InventoryBox.body.children[-int(key_chr)]), value='down')
 
     def _on_keyboard_up(self, keyboard, keycode):
         key_id, key_chr = keycode
@@ -179,10 +198,12 @@ class Ground(RelativeLayout):
 
 
 class ItemBox(ToggleButton):
+
     image = StringProperty()
 
     def __init__(self, **kwargs):
         super(ItemBox, self).__init__(**kwargs)
+        self.pressed = False
         self.image = kwargs.pop('image')
         self.outline = None
         self.group = "inventory"
@@ -190,34 +211,59 @@ class ItemBox(ToggleButton):
             self.image = 'atlas://data/images/defaulttheme/button'
         self.background_normal = self.background_down = self.image
 
+    def on_touch_down(self, touch):
+        InventoryBox.pressed = True
+        return super(ItemBox, self).on_touch_down(touch)
+
+    def on_touch_up(self, touch):
+        InventoryBox.pressed = False
+        return super(ItemBox, self).on_touch_up(touch)
+
     def on_state(self, instance, value):
-        if InventoryBox.selected[0]:
-            if value == "normal":
-                InventoryBox.selected[0] = False
-                self.canvas.remove(self.outline)
-                self.outline = None
-            else:
-                if InventoryBox.body.children[InventoryBox.selected[1]] == self:
-                    self.on_state(
-                        instance=InventoryBox.body.children[InventoryBox.selected[1]], value='normal')
-                else:
-                    InventoryBox.body.children[InventoryBox.selected[1]].on_state(
-                        instance=InventoryBox.body.children[InventoryBox.selected[1]], value='normal')
-                    self.on_state(
-                        instance=InventoryBox.body.children[InventoryBox.selected[1]], value='down')
+        print(instance, value)
+        if value == "normal":
+            self.canvas.remove(self.outline)
+            self.outline = None
         else:
-            if value:
-                InventoryBox.selected[0] = True
-                InventoryBox.selected[1] = InventoryBox.body.children.index(instance) - 4
-                rect = *self.pos, *self.size
-                with self.canvas:
-                    Color(rgba=(.2, .2, .2, 1))
-                    self.outline = Line(rectangle=rect, width=1.25)
+            rect = *self.pos, *self.size
+            with self.canvas:
+                Color(rgba=(.2, .2, .2, 1))
+                self.outline = Line(rectangle=rect, width=1.25)
+
+        # if InventoryBox.selected[0]:
+        #     if InventoryBox.body.children[InventoryBox.selected[1]] == self:
+        #         InventoryBox.selected[0] = False
+
+        #     else:
+        #         (InventoryBox.body.children[InventoryBox.selected[1]]).on_state(
+        #             instance=InventoryBox.body.children[InventoryBox.selected[1]], value='normal')
+        #         self.on_state(self, 'down')
+        #         InventoryBox.selected[1] = InventoryBox.body.children.index(self) - 4
+        #         # if InventoryBox.body.children[InventoryBox.selected[1]] == self:
+        #         #     self.on_state(
+        #         #         instance=InventoryBox.body.children[InventoryBox.selected[1]], value='normal')
+        #         # else:
+        #         #     InventoryBox.body.children[InventoryBox.selected[1]].on_state(
+        #         #         instance=InventoryBox.body.children[InventoryBox.selected[1]], value='normal')
+        #         #     self.on_state(
+        #         #         instance=InventoryBox.body.children[InventoryBox.selected[1]], value='down')
+        #         #     InventoryBox.selected[1] = InventoryBox.body.children.index(instance) - 4
+        # else:
+        #     print('wow')
+        #     if value:
+        #         InventoryBox.selected[0] = True
+        #         InventoryBox.selected[1] = InventoryBox.body.children.index(instance) - 4
+        #         print(InventoryBox.body.children.index(instance) - 4)
+        #         rect = *self.pos, *self.size
+        #         with self.canvas:
+        #             Color(rgba=(.2, .2, .2, 1))
+        #             self.outline = Line(rectangle=rect, width=1.25)
 
 
 class InventoryBox(BoxLayout):
+
     body = None
-    selected = [False, None]
+    pressed = False
 
     def __init__(self, **kwargs):
         super(InventoryBox, self).__init__(**kwargs)
@@ -228,4 +274,3 @@ class InventoryBox(BoxLayout):
                     self.add_widget(ItemBox(image=inventory[each][1], border=(4, 4, 4, 4)))
             except IndexError:
                 self.add_widget(ItemBox(image=''))
-
